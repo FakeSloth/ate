@@ -57,6 +57,23 @@ table {
 	height: 100%;
 }
 
+#homeScreen {
+	width: 100%;
+	height: 100%;
+}
+#content {
+	width: 100%;
+	height: 100%;
+}
+#leftSide, #rightSide {
+	float: left;
+	height: 100%;
+	width: 50%;
+}
+#rightSide {
+	outline: 1px solid black;
+}
+
 /* chat */
 .header {
 	height: 50px;
