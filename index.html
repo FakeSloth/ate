@@ -1,9 +1,39 @@
 <!DOCTYPE html>
-<html>
+
+<html lang="en">
 	<head>
-		<title>Ate</title>
+		<meta charset="utf-8">
+		<meta http-equiv="x-ua-compatible" content="ie=edge">
+		<title>Chat</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="description" content="Chat">
+
+		<link rel="stylesheet" href="/css/primer.css">
+		<link rel="stylesheet" href="/css/chat.css">
+		<link rel="stylesheet" href="/css/game.css">
 	</head>
 	<body>
-		
+		<div id="homeScreen">
+			<div class="header">
+				<h1>Simulator header</h1>
+			</div>
+			<div id="content">
+				<div id="leftSide">
+					<div class="chat">
+						<div class="logs"></div>
+						<div class="users"></div>
+						<div class="input"><textarea class="message"></textarea></div>
+					</div>
+					<div class="rooms">
+						<div class="rel selectedRoom"><h4>Lobby</h4><span>x</span></div>
+						<div class="rel"><h4>Room2</h4><span>x</span></div>
+						<div id="roomadd" class="rel">+</div>
+					</div>
+				</div>
+				<div id="rightSide">
+					<button id="findDuel" class="btn">Buttons... panel for the game</button>
+				</div>
+			</div>
+		</div>
 	</body>
 </html>

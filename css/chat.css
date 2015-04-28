@@ -1,0 +1,146 @@
+body, html {
+	padding: 0;
+	margin: 0;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+/* normal styling */
+h1, h2, h3, h4, h5 {
+	padding: 0;
+	margin: 0;
+}
+img {
+	max-width: 100%;
+	-webkit-user-drag: none;
+	user-drag: none;
+}
+table {
+	border-collapse: collapse;
+}
+.show {
+	display: block;
+}
+.hide {
+	display: none;
+}
+.relative, .rel {
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+.abs, .absolute {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0px;
+	left: 0px;
+}
+.cen, .center {
+	text-align: center;
+}
+.unselectable {
+	-moz-user-select: -moz-none;
+	-khtml-user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	-webkit-user-drag: none; /* Prevents dragging of images/divs etc */
+	user-drag: none;
+}
+.opaque {
+	position: absolute;
+	top: 0;
+	left: 0;
+	background: rgba(255, 255, 255, 0.5);
+	width: 100%;
+	height: 100%;
+}
+
+/* chat */
+.header {
+	height: 50px;
+	background: red;
+}
+.chat {
+	width: 500px;
+	height: 300px;
+	position: relative;
+	background: orange;
+}
+.logs {
+	float: left;
+	height: 260px;
+	width: 350px;
+	background: blue;
+}
+.users {
+	float: left;
+	width: 150px;
+	height: 100%;
+	background: yellow;
+}
+.input {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	height: 40px;
+	width: 350px;
+}
+.input .message {
+	height: 30px;
+	min-height: inherit;
+	width: 100%;
+	resize: none;
+	margin-top: 5px;
+	padding: 2px;
+}
+.rooms {
+	height: 35px;
+	width: 100%;
+}
+.rooms div {
+	width: 130px;
+	height: 100%;
+	background: orange;
+	border: 1px solid rgb(130, 130, 130);
+	border-radius: 0 0 5px 5px;
+	padding-left: 15px;
+	padding-right: 27px;
+	margin-right: 1px;
+	float: left;
+	border-top: 1px solid rgba(0, 0, 0, 0.1);
+	cursor: pointer;
+	position: relative;
+	max-width: 120px;
+	overflow: hidden;
+	opacity: 0.75;
+}
+.rooms .selectedRoom {
+	border-top: transparent;
+	opacity: 1;
+}
+.rooms div h4 {
+	font-weight: bold;
+	font-size: 16px;
+	padding: 0;
+	margin: 0;
+	margin-top: 8px;
+}
+.rooms span {
+	position: absolute;
+	top: 7px;
+	right: 7px;
+}
+#roomadd {
+	width: auto;
+	height: auto;
+	background: green;
+	padding: 2px 5px;
+	border: none;
+	border-radius: none;
+	font-size: 20px;
+	color: white;
+	font-weight: bold;
+	opacity: 1;
+}
