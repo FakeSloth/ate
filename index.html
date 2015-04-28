@@ -29,10 +29,48 @@
 					</div>
 				</div>
 				<div id="rightSide">
-					<h3>This would be like pokemon showdown's game panel... but on the right side lol</h3>
-					<button id="findDuel" class="btn">Buttons...</button>
+					<center>
+						<br />
+						<button>Find Battle</button>
+						<button>Builder</button>
+						<button>Ladder</button>
+						<br />etc...
+					</center>
 				</div>
 			</div>
 		</div>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+		<script>
+			var ate = {
+				resize: function() {
+					var smallRightSide = 300,
+						bigRightSide = 600;
+					var rightSideWidth = smallRightSide;
+					var leftSideWidth = $("body").width() - rightSideWidth;
+					var leftSideWidthWITHbigRight = $("body").width() - bigRightSide;
+					if (leftSideWidth >= 700 && leftSideWidthWITHbigRight >= 500) {
+						rightSideWidth = bigRightSide;
+						leftSideWidth = leftSideWidthWITHbigRight;
+					}
+					$("#rightSide").width(rightSideWidth);
+					$("#leftSide").width(leftSideWidth);
+					
+					var headerHeight = $(".header").height(),
+						roomsHeight = $(".rooms").height(),
+						inputHeight = $(".input").height(),
+						usersWidth = $(".users").width();
+					var chatHeight = $("body").height() - (headerHeight + roomsHeight);
+					var logsWidth = leftSideWidth - usersWidth;
+					var logsHeight = chatHeight - inputHeight;
+					$(".chat").height(chatHeight);
+					$(".logs").height(logsHeight).width(logsWidth);
+					$(".input").width(logsWidth);
+				},
+			};
+			$(function() {
+				ate.resize();
+				$(window).on('resize', ate.resize);
+			});
+		</script>
 	</body>
 </html>
