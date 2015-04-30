@@ -6,19 +6,24 @@ var UserModel = require('./userModel.js'); // get our mongoose model
 var superSecret = 'superSecret';
 
 var userCount = 0;
-var users = {};
+global.users = {};
 function User(socket) {
+	socket.send = function(msg) {
+		this.emit('e', msg);
+	};
 	this.name = "Guest" + (++userCount);
 	this.userid = toId(this.name);
 	this.connections = [socket];
 	this.connected = true;
 	this.rooms = {};
+	this.named = false;
 	socket.user = users[this.userid] = this;
 	this.updateUser();
 	return this;
 }
 User.prototype.finishRename = function(name, token) {
 	//dont forget to merge shit
+	var oldUserid = this.userid;
 	var userid = toId(name);
 	var targetUser = users[userid];
 	if (!targetUser) {
@@ -32,11 +37,20 @@ User.prototype.finishRename = function(name, token) {
 	this.name = name;
 	this.userid = userid;
 	this.connected = true;
+	this.named = true;
+	if (name.substr(0, 5) === "Guest") this.named = false;
 	if (token) this.token = token;
 	this.updateUser(token);
+	
+	//let the rooms know about the name change
+	var roomKeys = Object.keys(this.rooms);
+	for (var i = 0; i < roomKeys.length; i++) {
+		var room = rooms[roomKeys[i]];
+		room.renameUser(oldUserid, userid);
+	}
 };
 User.prototype.updateUser = function(token) {
-	this.send('user|' + this.name + '|' + (token ? token : ''));
+	this.send('user|' + this.getIdentity() + '|' + (token ? token : ''));
 };
 User.prototype.merge = function(targetUser) {
 	//take the connections && ips of oldUser and put them in "this"
@@ -45,6 +59,10 @@ User.prototype.merge = function(targetUser) {
 	for (var i = 0; i < connectionCount; i++) {
 		var connection = connections[i];
 		connection.user = this;
+		if (connections.channels) {
+			//if in any rooms add them to user object
+			for (var x in connections.channels) this.rooms[x] = true;
+		}
 		this.connections.push(connection);
 	}
 };
@@ -52,19 +70,55 @@ User.prototype.disconnect = function(connection) {
 	var connectionCount = this.connections.length;
 	for (var i = 0; i < connectionCount; i++) {
 		if (connection === this.connections[i]) {
-			this.connections.splice(i, 1);
+			this.logoutSocket(connection, i);
 			break;
 		}
 	}
 	if (!this.connections.length) this.logout();
 };
+User.prototype.logoutSocket = function(connection, key) {
+	connection.send = function() {};
+	//disconnect from all rooms
+	if (connection.channels) {
+		var keys = Object.keys(connection.channels);
+		for (var i = 0; i < keys.length; i++) rooms[keys[i]].leave(connection);
+	}
+	//remove socket from connections
+	this.connections.splice(key, 1);
+};
+User.prototype.firstJoin = function(room) {
+	//check if this is the first connection to join a room
+	var id = room.id || room;
+	var connectionsToRoom = 0;
+	for (var i = 0; i < this.connections.length; i++) {
+		var connection = this.connections[i];
+		if (!connection.channels) continue;
+		if (connection.channels[id]) {
+			if (++connectionsToRoom === 2) break; //we don't need to go any further, we know this is not the first join
+		}
+	}
+	if (connectionsToRoom === 1) return true;
+	return false;
+};
+User.prototype.lastLeave = function(room) {
+	//check if no connections are left to a room
+	var id = room.id || room;
+	var connectionsToRoom = 0;
+	for (var i = 0; i < this.connections.length; i++) {
+		var connection = this.connections[i];
+		if (!connection.channels) continue;
+		if (connection.channels[id]) {
+			if (++connectionsToRoom === 1) break; //we don't need to go any further, we know we still have active connections to the room
+		}
+	}
+	if (connectionsToRoom === 0) return true;
+	return false;
+};
+User.prototype.isIn = function(room) {
+	return !this.lastLeave(room);
+};
 User.prototype.logout = function() {
 	this.connected = false;
-	//disconnect from all rooms
-	var keys = Object.keys(this.rooms);
-	for (var i = 0; i < keys.length; i++) {
-		rooms[keys[i]].leave(this);
-	}
 };
 User.prototype.register = function(name, password) {
 	//creating a user
@@ -164,6 +218,9 @@ User.prototype.loginByToken = function(token) {
 		self.finishRename(dbUser.name);
 	});
 };
+User.prototype.getIdentity = function() {
+	return ' ' + this.name;
+};
 User.prototype.filterName = function(name) {
 	function toName(name) {
 		name = string(name);
@@ -178,6 +235,6 @@ User.prototype.filterName = function(name) {
 User.prototype.send = function(data) {
 	var connections = this.connections;
 	var connectionCount = connections.length;
-	for (var i = 0; i < connectionCount; i++) connections[i].emit('e', data);
+	for (var i = 0; i < connectionCount; i++) connections[i].send(data);
 };
 module.exports = User;

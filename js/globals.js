@@ -21,3 +21,15 @@ function cookie(c_name, value, exdays) {
 function eatcookie(name) {
 	document.cookie = name + '=; expires=Thu, 01-Jan-70 00:00:01 GMT;';
 }
+function string(str) {
+	if (typeof str === 'string' || typeof str === 'number') return '' + str;
+	return '';
+}
+function toId(text) {
+	if (text && text.id) text = text.id;
+	else if (text && text.userid) text = text.userid;
+	return string(text).toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
+function escapeHTML(txt) {
+	return $('<div/>').text(txt).html();
+}

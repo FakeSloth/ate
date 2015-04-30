@@ -94,6 +94,7 @@ table {
 	height: 260px;
 	width: 350px;
 	background: rgb(232, 232, 232);
+	overflow-y: scroll;
 }
 .users {
 	float: left;

@@ -19,16 +19,27 @@ function Socket() {
 		console.log(data);
 		var events = this.REFERENCE.events;
 		if (typeof data === "string") {
-			var eventos = data.split('\n');
-			for (var eventKey in eventos) {
-				var rows = eventos[eventKey].split('|');
-				var event = rows[0];
-				if (typeof events[event] === "string") event = events[event];
-				if (events[event]) {
-					events[event](rows);
-				} else {
-					events.c(("c||" + rows.join('|')).split("|"));
+			var roomid = '';
+			if (data.substr(0,1) === '>') {
+				var nlIndex = data.indexOf('\n');
+				if (nlIndex < 0) return;
+				roomid = toId(data.substr(1,nlIndex-1));
+				data = data.substr(nlIndex+1);
+			}
+			if (roomid) {
+				if (ate.rooms[roomid]) {
+					ate.rooms[roomid].receive(data);
 				}
+				return;
+			}
+			var rows = data.split('|');
+			var event = rows[0];
+			if (typeof events[event] === "string") event = events[event];
+			if (events[event]) {
+				events[event](rows);
+			} else {
+				//message meant for lobby
+				ate.rooms['lobby'].receive(data);
 			}
 		} else {
 			//just in case data has to come in as an object
@@ -61,31 +72,24 @@ function Socket() {
 	return this;
 }
 Socket.prototype.events = {
-	c: function(data) {
-		function addLog(msg) {$('.logs').append('<div>' + msg + '</div>');}
-		addLog(data[1] + ': ' + data[2]);
-	},
-	l: function(data) {
-		function addLog(msg) {$('.logs').append('<div>' + msg + '</div>');}
-		addLog(data[1] + ' left.');
-	},
-	j: function(data) {
-		function addLog(msg) {$('.logs').append('<div>' + msg + '</div>');}
-		addLog(data[1] + ' joined.');
-	},
 	init: function(data) {
-		var title = data[1];
-		var roomCount = $(".rooms .rel").length - 1; //-1 bcos the add room button counts
-		$('.selectedRoom').removeClass('selectedRoom');
-		var buff = $('<div class="rel"><h4>' + title + '</h4><span>x</span></div>').addClass("selectedRoom");
-		if (roomCount === 0) {
-			$('.rooms').prepend(buff);
-		} else $('.rooms').last().before(buff);
-		//put the focus on this room...
+		data.splice(0, 1);
+		var splint = data.join('|').split('\n');
+		var title = splint[0];
+		splint.splice(0, 1);
+		var data = splint.join('\n');
+		var room = ate.createRoom(title);
+		room.focusRoom();
+		room.receive(data);
 	},
-	deinit: function() {},
+	deinit: function(data) {
+		var room = ate.rooms[data[1]];
+		room.deinit();
+	},
 	user: function(data) {
-		ate.username = data[1];
+		ate.getIdentity = function() {return data[1];};
+		ate.username = data[1].substr(1);
+		ate.userid = toId(ate.username);
 		ate.updateHeader();
 		ate.token = data[2];
 		if (ate.username.substr(0, 5) !== "Guest") {
