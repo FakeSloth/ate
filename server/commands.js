@@ -24,12 +24,5 @@ module.exports = {
 	nickname: 'nick',
 	nick: function(data, room, user) {
 		user.rename(data);
-	},
-	reg: 'register',
-	register: function(data, room, user) {
-		var splint = data.split(',');
-		var name = splint[0];
-		var pass = splint[1];
-		user.register(name, pass);
-	},
+	}
 };

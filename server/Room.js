@@ -32,6 +32,7 @@ Room.prototype.send = function(msg) {
 		var connectionCount = connections.length;
 		for (var x = 0; x < connectionCount; x++) {
 			var connection = connections[x];
+			if (!connection.channels) continue;
 			if (connection.channels[this.id]) connection.send(msg);
 		}
 	}

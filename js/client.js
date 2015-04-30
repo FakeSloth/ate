@@ -1,9 +1,21 @@
 var ate = {
 	init: function() {
+		var t = new Date() / 1;
 		this.resize();
 		this.updateHeader();
 		this.domEvents();
-		this.socket = new Socket();
+		
+		var refreshLatency = 2.5 * 1000;
+		var difference = t - Number(cookie("lastVisit"));
+		if (difference < refreshLatency) {
+			//hack to prevent refresh while on polling transport
+			//usually if you refresh too fast the sockets won't disconnect and'll bug everything out .-.
+			var self = this;
+			setTimeout(function() {
+				self.socket = new Socket();
+			}, refreshLatency - difference);
+		} else this.socket = new Socket();
+		cookie("lastVisit", t);
 	},
 	rooms: new Object(),
 	focusedRoom: undefined,
