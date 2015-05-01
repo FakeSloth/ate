@@ -7,6 +7,11 @@ var ate = {
 		var globalRoom = this.createRoom("Global");
 		globalRoom.focusRoom();
 		
+		ate.initial = {
+			width: $("body").width(),
+			height: $("body").height()
+		};
+		
 		var t = new Date() / 1;
 		var refreshLatency = 2.5 * 1000;
 		var difference = t - Number(cookie("lastVisit"));
@@ -268,6 +273,20 @@ var ate = {
 		this.socket.emit('c', {msg: '/join lobby'});
 	},
 	resize: function() {
+		/* keyboard detection... since keyboards make the screen height REDICULOUSLY small... maybe i'll need it later idk
+		if (ate.initial && helpers.isMobile()) {
+			var percentChange = {
+				width: Math.abs(100 - ($("body").width() / ate.initial.width * 100)),
+				height: Math.abs(100 - ($("body").height() / ate.initial.height * 100))
+			};
+			if (percentChange.width < 1 && percentChange.height > 35) {
+				//on keyboard popup DONT resize since there's only like 80 pixels to split in height afterwards
+				return;
+			}
+		}
+		*/
+		
+		$("#content").height($("body").height() - $("#content").offset().top);
 		var smallRightSide = 300,
 			bigRightSide = 600;
 		var rightSideWidth = smallRightSide;
@@ -341,7 +360,8 @@ var ate = {
 			buff += '<div class="buttons"><button class="submit">REGISTER</button> <button onclick="$(\'#p' + id + '\').mouseup();">Cancel</button></div>';
 		}
 		buff += '</div></div>';
-		$(start + buff + end).appendTo("body").find('input').last().focus();
+		var el = $(start + buff + end).appendTo("body").find('input').last();
+		if (!helpers.isMobile()) el.focus();
 	},
 	closePrompt: function(id) {
 		$("#p" + id).remove();
@@ -402,7 +422,7 @@ var ate = {
 			if (e.shiftKey || (window.getSelection && !window.getSelection().isCollapsed)) {
 				return;
 			}
-			$(".message").focus();
+			if (!helpers.isMobile()) $(".message").focus();
 		}).on("keydown", function(e) {
 			if (e.keyCode === 8 && !inputFocus) {
 				//prevent backspace if not in input
