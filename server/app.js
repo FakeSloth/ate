@@ -11,6 +11,7 @@ var io = require('socket.io').listen(8000),
 	User = require('./User.js'),
 	Room = require('./Room.js'),
 	parse = require('./parse.js');
+global.Config = require('./Config.js');
 
 var events = {
 	'nametaken': function(user, data) {
@@ -35,6 +36,12 @@ var events = {
 	},
 };
 io.on('connection', function(socket) {
+	if (Config.bannedIps[socket.handshake.address]) {
+		//banned ip
+		socket.emit('e', 'banned');
+		socket.disconnect();
+		return;
+	}
 	var user = socket.user;
 	if (!user) user = new User(socket);
 	socket.on('e', function(data) {

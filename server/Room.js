@@ -89,10 +89,12 @@ Room.prototype.leave = function(connection) {
 	}
 };
 Room.prototype.renameUser = function(from, to) {
-	console.log("rename from :" + from + "\t\tto: " + to);
 	var user = this.users[from];
-	delete this.users[from];
-	this.users[to] = user;
+	if (from !== to) { //just changed symbol, no need to reassign user objects
+		//change userid of objects on name change
+		delete this.users[from];
+		this.users[to] = user;
+	}
 	
 	if (user.named) {
 		if (from.substr(0, 5) === "guest") {

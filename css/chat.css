@@ -69,9 +69,11 @@ table {
 	float: left;
 	height: 100%;
 	width: 50%;
+	outline: 1px solid #b6b6b6;
 }
 #rightSide {
 	background: #e6e6e6;
+	outline: 1px solid #b6b6b6;
 }
 
 /* chat */
@@ -88,6 +90,7 @@ table {
 	height: 300px;
 	position: relative;
 	background: rgb(140, 140, 140);
+	outline: 1px solid #b6b6b6;
 }
 .logs {
 	float: left;
@@ -96,11 +99,19 @@ table {
 	background: rgb(232, 232, 232);
 	overflow-y: scroll;
 }
+.logs div {
+	padding: 4px 0px 2px 0px;
+	margin-left: 5px;
+}
 .users {
 	float: left;
 	width: 150px;
 	height: 100%;
 	background: rgb(177, 177, 177);
+}
+.users div {
+	margin: 5px;
+	border-bottom: 1px solid grey;
 }
 .input {
 	position: absolute;
@@ -124,21 +135,21 @@ table {
 	border: none;
 }
 .rooms {
-	height: 35px;
+	height: 37px;
 	width: 100%;
 }
 .rooms div {
-	width: 130px;
+	width: auto;
 	height: 30px;
 	margin-top: 5px;
-	background: rgb(145, 145, 145);
-	border: 1px solid rgb(130, 130, 130);
-	border-radius: 5px 5px 0 0;
-	padding-left: 15px;
-	padding-right: 27px;
 	margin-right: 1px;
+	background: rgb(145, 145, 145);
+	padding-left: 15px;
+	padding-right: 37px;
 	float: left;
+	border: 1px solid rgb(130, 130, 130);
 	border-top: 1px solid rgba(0, 0, 0, 0.1);
+	border-radius: 5px 5px 0 0;
 	cursor: pointer;
 	position: relative;
 	max-width: 120px;
@@ -146,8 +157,9 @@ table {
 	opacity: 0.75;
 }
 .rooms .selectedRoom {
-	border-top: transparent;
 	opacity: 1;
+	border-top: none;
+	padding-bottom: 1px; /* to undo removing the top border */
 }
 .rooms div h4 {
 	font-weight: bold;
@@ -156,10 +168,22 @@ table {
 	margin: 0;
 	margin-top: 8px;
 }
-.rooms span {
+.rooms .rel span {
 	position: absolute;
 	top: 7px;
 	right: 7px;
+	width: 15px;
+	height: 15px;
+	text-align: center;
+	line-height: 0.75;
+	background: black;
+	border-radius: 10px;
+	padding: 3px;
+	margin: -3px;
+	color: white;
+}
+.rooms .rel span:hover, .rooms .rel span:active {
+	background: rgb(130, 0, 0);
 }
 #roomadd {
 	width: auto;

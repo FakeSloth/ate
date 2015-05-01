@@ -8,7 +8,19 @@ var superSecret = 'superSecret';
 var userCount = 0;
 global.users = {};
 function User(socket) {
-	socket.send = function(msg) {
+	socket.send = function() {
+		var room;
+		var msg = '';
+		if (arguments[1]) {
+			//(room, msg)
+			room = arguments[0];
+			if (room.id) room = room.id;
+			if (room && room !== 'lobby') msg += ">" + room + "\n";
+			msg += arguments[1];
+		} else {
+			//(msg)
+			msg = arguments[0];
+		}
 		this.emit('e', msg);
 	};
 	this.name = "Guest" + (++userCount);
@@ -17,6 +29,9 @@ function User(socket) {
 	this.connected = true;
 	this.rooms = {};
 	this.named = false;
+	this.rank = 0;
+	this.ips = {};
+	this.ips[socket.handshake.address] = 1;
 	socket.user = users[this.userid] = this;
 	this.updateUser();
 	return this;
@@ -38,6 +53,8 @@ User.prototype.finishRename = function(name, token) {
 	this.userid = userid;
 	this.connected = true;
 	this.named = true;
+	this.rank = 0;
+	if (Config.auths[userid]) this.rank = Config.auths[userid];
 	if (name.substr(0, 5) === "Guest") this.named = false;
 	if (token) this.token = token;
 	this.updateUser(token);
@@ -53,7 +70,7 @@ User.prototype.updateUser = function(token) {
 	this.send('user|' + this.getIdentity() + '|' + (token ? token : ''));
 };
 User.prototype.merge = function(targetUser) {
-	//take the connections && ips of oldUser and put them in "this"
+	//merge connections
 	var connections = targetUser.connections;
 	var connectionCount = connections.length;
 	for (var i = 0; i < connectionCount; i++) {
@@ -64,6 +81,13 @@ User.prototype.merge = function(targetUser) {
 			for (var x in connections.channels) this.rooms[x] = true;
 		}
 		this.connections.push(connection);
+	}
+	
+	//merge ips
+	var ipKeys = Object.keys(targetUser.ips);
+	for (var i = 0; i < ipKeys.length; i++) {
+		var ip = ipKeys[i];
+		this.ips[ip] = 1;
 	}
 };
 User.prototype.disconnect = function(connection) {
@@ -85,6 +109,23 @@ User.prototype.logoutSocket = function(connection, key) {
 	}
 	//remove socket from connections
 	this.connections.splice(key, 1);
+};
+User.prototype.ban = function() {
+	for (var ip in this.ips) Config.bannedIps[ip] = this.userid;
+	this.send('banned');
+	this.disconnectAll();
+};
+User.prototype.unban = function() {
+	for (var ip in Config.bannedIps) {
+		var userid = Config.bannedIps[ip];
+		if (this.userid === userid) delete Config.bannedIps[ip];
+	}
+};
+User.prototype.disconnectAll = function() {
+	for (var i in this.connections) {
+		this.connections[i].disconnect();
+	}
+	this.connections = [];
 };
 User.prototype.firstJoin = function(room) {
 	//check if this is the first connection to join a room
@@ -219,7 +260,7 @@ User.prototype.loginByToken = function(token) {
 	});
 };
 User.prototype.getIdentity = function() {
-	return ' ' + this.name;
+	return Config.ranks[this.rank] + this.name;
 };
 User.prototype.filterName = function(name) {
 	function toName(name) {

@@ -39,7 +39,9 @@ function Socket() {
 				events[event](rows);
 			} else {
 				//message meant for lobby
-				ate.rooms['lobby'].receive(data);
+				var room = ate.rooms['lobby'];
+				if (!room) room = ate.rooms['global'];
+				room.receive(data);
 			}
 		} else {
 			//just in case data has to come in as an object
@@ -72,6 +74,9 @@ function Socket() {
 	return this;
 }
 Socket.prototype.events = {
+	banned: function() {
+		$("body").append("<div style='position: absolute;top: 50%;left: 50%;z-index: 9999;width: 150px;height: 77px;margin-top: -38.5px;margin-left: -75px;background: black;text-align: center;'><h1><font color='red'>You're banned.</font></h1></div>");
+	},
 	init: function(data) {
 		data.splice(0, 1);
 		var splint = data.join('|').split('\n');
