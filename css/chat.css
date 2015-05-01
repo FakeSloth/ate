@@ -63,14 +63,21 @@ table {
 #content {
 	width: 100%;
 	height: 50%;
+	position: relative;
+	overflow: hidden;
 }
 #leftSide, #rightSide {
-	float: left;
+	position: absolute;
+	bottom: 0;
 	height: 100%;
 	width: 50%;
 	outline: 1px solid #b6b6b6;
 }
+#leftSide {
+	left: 0;
+}
 #rightSide {
+	right: 0;
 	background: #e6e6e6;
 	outline: 1px solid #b6b6b6;
 }

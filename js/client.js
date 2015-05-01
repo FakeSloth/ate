@@ -285,7 +285,6 @@ var ate = {
 			}
 		}
 		*/
-		
 		$("#content").height($("body").height() - $("#content").offset().top);
 		var smallRightSide = 300,
 			bigRightSide = 600;
