@@ -121,9 +121,20 @@ User.prototype.unban = function() {
 		if (this.userid === userid) delete Config.bannedIps[ip];
 	}
 };
-User.prototype.disconnectAll = function() {
+User.prototype.kick = function(targetRoom) {
 	for (var i in this.connections) {
-		this.connections[i].disconnect();
+		var socket = this.connections[i];
+		if (socket.channels && !socket.channels[targetRoom.id]) {
+			//skip sockets not inside of targetRoom
+			continue;
+		}
+		targetRoom.leave(socket);
+	}
+};
+User.prototype.disconnectAll = function(room) {
+	for (var i in this.connections) {
+		var socket = this.connections[i];
+		socket.disconnect();
 	}
 	this.connections = [];
 };

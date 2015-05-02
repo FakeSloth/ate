@@ -129,6 +129,7 @@ var ate = {
 					this.updateUsers();
 					break;
 				case 'users':
+					if (row[1] === "") return;
 					var users = row[1].split(',');
 					for (var i = 0; i < users.length; i++) {
 						var username = users[i];
@@ -217,14 +218,47 @@ var ate = {
 		Room.prototype.addLogDom = function(msg) {
 			$('.logs').append($('<div></div>').append(msg));
 		};
+		Room.prototype.sortUsers = function() {
+			function compare(a,b) {
+				if (a < b) return -1;
+				if (a > b) return 1;
+				return 0;
+			}
+			var groupKeyOrder = {
+				'-': 0,
+				'#': 1,
+				'*': 2,
+				'+': 3,
+				' ': 4
+			};
+			var groupCount = Object.keys(groupKeyOrder).length;
+			var groups = [];
+			for (var i = 0; i < groupCount; i++) groups.push([]);
+			//put users in respective groups
+			for (var i in this.users) {
+				var identity = this.users[i];
+				var groupKey = groupKeyOrder[identity.charAt(0)];
+				groups[groupKey].push(identity);
+			}
+			//sort each group
+			for (var i = 0; i < groupCount; i++) {
+				var sortedGroup = groups[i].sort(compare);
+				groups[i] = sortedGroup;
+			}
+			//turn all the groups into one big list
+			var list = [];
+			for (var i = 0; i < groupCount; i++) list = list.concat(groups[i]);
+			
+			this.alphabetizedUsers = list;
+		};
 		Room.prototype.updateUsers = function() {
+			this.sortUsers();
 			if (ate.focusedRoom !== this) return;
 			var buff = '';
-			var keys = Object.keys(this.users);
-			for (var i = 0; i < keys.length; i++) {
-				var userid = keys[i];
-				var name = this.users[userid];
-				buff += '<div>' + escapeHTML(name) + '</div>';
+			var list = this.alphabetizedUsers;
+			for (var i = 0; i < list.length; i++) {
+				var identity = list[i];
+				buff += '<div>' + escapeHTML(identity) + '</div>';
 			}
 			$('.users').html(buff);
 		};

@@ -1,4 +1,12 @@
-module.exports = {
+var commands = {
+	help: function(data, room, user, socket) {
+		var buff = '<h1>Commands:</h1>\n';
+		for (var i in commands) {
+			if (typeof commands[i] === 'string') continue;
+			buff += '|' + i + '\n';
+		}
+		socket.send(room, 'raw|' + buff);
+	},
 	/* functional commands */
 	rename: 'nick',
 	name: 'nick',
@@ -121,8 +129,9 @@ module.exports = {
 		var targetUser = users[toId(targetUsername)];
 		if (!targetUser) return socket.send(room, "The user '" + targetUsername + "' doesn't exist");
 		if (targetUser.rank > user.rank) return socket.send(room, "You can't mute your superior.");
-		//undone
-		
+
+		targetUser.muted = true;
+		room.add(targetUser.name + ' was muted by ' + user.name + '.');
 	},
 	unmute: function(data, room, user, socket) {
 		if (user.rank < 2) {
@@ -132,14 +141,28 @@ module.exports = {
 		var targetUser = users[toId(targetUsername)];
 		if (!targetUser) return socket.send(room, "The user '" + targetUsername + "' doesn't exist");
 		if (targetUser.rank > user.rank) return socket.send(room, "You can't unmute your superior.");
-		//undone
-		
+
+		delete targetUser.muted;
+		room.add(targetUser.name + ' was unmuted by ' + user.name + '.');
 	},
 	/* voice commands */
-	declare: function() {
-		
+	declare: function(data, room, user, socket) {
+		if (user.rank < 1) {
+			return socket.send(room, "You don't have permission to use /declare");
+		}
+		room.addRaw('<h2>' + data + '</h2>');
 	},
-	kick: function() {
+	kick: function(data, room, user, socket) {
+		if (user.rank < 1) {
+			return socket.send(room, "You don't have permission to use /kick");
+		}
+		var targetUsername = data;
+		var targetUser = users[toId(targetUsername)];
+		if (!targetUser) return socket.send(room, "The user '" + targetUsername + "' doesn't exist");
+		if (targetUser.rank > user.rank) return socket.send(room, "You can't kick your superior.");
 		
+		targetUser.kick(room);
+		room.add(targetUser.name + ' was kicked by ' + user.name + '.');
 	}
 };
+module.exports = commands;

@@ -32,6 +32,7 @@ var events = {
 		if (!msg.trim().length || msg.length > 500) return;
 		var sendMessage = parse(msg, room, user, socket);
 		if (sendMessage === false || !room) return;
+		if (user.muted) return socket.send(room, 'You are muted.');
 		room.addLog(user.getIdentity() + '|' + data.msg); //add log
 	},
 };
