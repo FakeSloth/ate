@@ -69,7 +69,7 @@ User.prototype.finishRename = function(name, token) {
 User.prototype.updateUser = function(token) {
 	this.send('user|' + this.getIdentity() + '|' + (token ? token : ''));
 };
-User.prototype.merge = function(targetUser) {
+User.prototype.merge = function(oldUser) {
 	//merge connections
 	var connections = oldUser.connections;
 	var connectionCount = connections.length;
