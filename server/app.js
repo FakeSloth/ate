@@ -43,15 +43,16 @@ io.on('connection', function(socket) {
 		socket.disconnect();
 		return;
 	}
-	var user = socket.user;
-	if (!user) user = new User(socket);
+	var user = new User(socket);
 	socket.on('e', function(data) {
+		var user = socket.user;
 		if (typeof data !== "object" || !data.event) return;
 		if (events[data.event]) {
 			events[data.event](user, data, socket);
 		}
 	});
 	socket.on('disconnect', function() {
+		var user = socket.user;
 		user.disconnect(socket);
 	});
 });

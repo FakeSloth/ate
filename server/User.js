@@ -37,18 +37,17 @@ function User(socket) {
 	return this;
 }
 User.prototype.finishRename = function(name, token) {
-	//dont forget to merge shit
 	var oldUserid = this.userid;
 	var userid = toId(name);
 	var targetUser = users[userid];
+	//remove old user object
+	delete users[this.userid];
 	if (!targetUser) {
 		users[userid] = this;
 	} else {
 		//merge user
-		this.merge(targetUser);
-		users[userid] = this;
+		users[userid].merge(this);
 	}
-	delete users[this.userid];
 	this.name = name;
 	this.userid = userid;
 	this.connected = true;
@@ -65,17 +64,17 @@ User.prototype.finishRename = function(name, token) {
 		var room = rooms[roomKeys[i]];
 		room.renameUser(oldUserid, userid);
 	}
+	users[userid].updateSocketsUser();
 };
 User.prototype.updateUser = function(token) {
 	this.send('user|' + this.getIdentity() + '|' + (token ? token : ''));
 };
 User.prototype.merge = function(targetUser) {
 	//merge connections
-	var connections = targetUser.connections;
+	var connections = oldUser.connections;
 	var connectionCount = connections.length;
 	for (var i = 0; i < connectionCount; i++) {
 		var connection = connections[i];
-		connection.user = this;
 		if (connections.channels) {
 			//if in any rooms add them to user object
 			for (var x in connections.channels) this.rooms[x] = true;
@@ -84,10 +83,18 @@ User.prototype.merge = function(targetUser) {
 	}
 	
 	//merge ips
-	var ipKeys = Object.keys(targetUser.ips);
+	var ipKeys = Object.keys(oldUser.ips);
 	for (var i = 0; i < ipKeys.length; i++) {
 		var ip = ipKeys[i];
 		this.ips[ip] = 1;
+	}
+};
+User.prototype.updateSocketsUser = function() {
+	var connections = this.connections;
+	var connectionCount = connections.length;
+	for (var i = 0; i < connectionCount; i++) {
+		var connection = connections[i];
+		connection.user = this;
 	}
 };
 User.prototype.disconnect = function(connection) {

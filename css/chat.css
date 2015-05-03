@@ -56,6 +56,7 @@ table {
 	height: 100%;
 }
 
+/* chat */
 #homeScreen {
 	width: 100%;
 	height: 100%;
@@ -81,8 +82,6 @@ table {
 	background: #e6e6e6;
 	outline: 1px solid #b6b6b6;
 }
-
-/* chat */
 .header {
 	height: 50px;
 	background: rgb(27, 27, 27);
