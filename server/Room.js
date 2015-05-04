@@ -46,7 +46,7 @@ Room.prototype.initSocket = function(connection) {
 		if (!user.named) continue;
 		data += user.getIdentity() + ",";
 	}
-	if (userKeys.length > 0) data = data.slice(0, -1);
+	if (data.substr(-1) != "|") data = data.slice(0, -1);
 	data += "\n";
 	var logsLen = this.logs.length;
 	var logsToProvide = 100;
